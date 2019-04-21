@@ -56,6 +56,9 @@ namespace SmallGoal.Models
         private string _endTimeString;
         private bool _isCountingTime;
 
+        private long _countingStart;
+        private long _countedSeconds;
+
         // 供viewmodel调用的公有接口们
         // 目标名称
         public string name { get { return this._name; } set { this._name = value; this.NotifyPropertyChanged(); } }
@@ -96,7 +99,10 @@ namespace SmallGoal.Models
         public string startTimeString { get { return this._startTimeString; } set { this._startTimeString = value;  this.NotifyPropertyChanged(); } }
         public string endTimeString { get { return this._endTimeString; } set { this._endTimeString = value;  this.NotifyPropertyChanged(); } }
 
-        public bool isCountingTime { get { return this._isCountingTime; } set { this._isCountingTime = value;  this.NotifyPropertyChanged(); } }
+        public bool isCountingTime { get { return this._isCountingTime; } set { this._isCountingTime = value; this.NotifyPropertyChanged(); } }
+
+        public long countingStart { get { return this._countingStart; } set { this._countingStart = value; this.NotifyPropertyChanged(); } }
+        public long countedSeconds { get { return this._countedSeconds; } set { this._countedSeconds = value; this.NotifyPropertyChanged(); } }
 
         public MyGoalItem(string name, int type, int startYear, int startMonth, int startDay, int startHour, int startMinute,
             int endYear, int endMonth, int endDay, int endHour, int endMinute, string note, int isFinished,
