@@ -1,0 +1,22 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<tile>
+  <visual>
+
+    <binding template="TileSmall" displayName ="SmallGoal">
+      <text hint-style="subtitle"></text>
+      <text hint-style="captionSubtle"></text>
+
+    </binding>
+
+    <binding template="TileMedium" displayName ="SmallGoal">
+      <text hint-style="subtitle"></text>
+      <text hint-style="captionSubtle"></text>
+    </binding>
+
+    <binding template="TileWide" displayName ="SmallGoal">
+      <text hint-style="subtitle"></text>
+      <text hint-style="captionSubtle"></text>
+    </binding>
+
+  </visual>
+</tile>
