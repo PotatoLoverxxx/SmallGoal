@@ -31,7 +31,38 @@
         </Grid>
 
         <!--在这里加入-->
-        
+        <ScrollViewer Grid.Row="1">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <Grid Grid.Row="0" Margin="8">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="auto"/>
+                    </Grid.RowDefinitions>
+
+                    <TextBox Grid.Row="0" x:Name="TargetNameEditor" Header="目标" MaxLength="15" AcceptsReturn="True" TextWrapping="Wrap"/>
+                    <StackPanel Orientation="Horizontal" Grid.Row="1">
+                        <RadioButton Content="日目标" Tag="DayTarget" x:Name="DayTarget" Checked="TargetType_Checked" IsChecked="True"/>
+                        <RadioButton Content="月目标" Tag="MonthTarget" x:Name="MonthTarget" Checked="TargetType_Checked"/>
+                        <RadioButton Content="年目标" Tag="YearTarget" x:Name="YearTarget" Checked="TargetType_Checked"/>
+                    </StackPanel>
+                    <DatePicker x:Name="StartDate" Header="开始日期" Grid.Row="2" Margin="0,4"/>
+                    <TimePicker x:Name="StartTime" Grid.Row="3" Header="时间" Margin="0,4"/>
+                    <DatePicker x:Name="EndDate" Grid.Row="4" Header="结束日期" Margin="0,4"/>
+                    <TimePicker x:Name="EndTime" Grid.Row="5" Margin="0,4" Header="时间"/>
+                    <TextBox Grid.Row="6" x:Name="TargetNote" Header="备注" Height="100" Margin="0,4" MaxLength="100" AcceptsReturn="True" TextWrapping="Wrap"/>
+                </Grid>
+            </Grid>
+        </ScrollViewer>
 
         <!--底部栏：三个页面选择-->
         <Grid VerticalAlignment="Bottom" Grid.Row="2">
