@@ -17,12 +17,33 @@
         </Grid.RowDefinitions>
 
         <!--顶部栏： 图标（如果需要）+标题+图标（如果需要）-->
-        
+        <Grid VerticalAlignment="Top" Grid.Row="0">
+            <Grid.Background>
+                <SolidColorBrush Color="#00BCD4"/>
+            </Grid.Background>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1*"/>
+                <ColumnDefinition Width="8*"/>
+                <ColumnDefinition Width="1*"/>
+            </Grid.ColumnDefinitions>
+            <AppBarButton Grid.Column="0" x:Name="navigateBackButton" Click="navigateBackButton_Click" Height="50" HorizontalAlignment="Center" Icon="Back" Foreground="White" VerticalAlignment="Center" FontWeight="Bold"/>
+            <TextBlock Grid.Column="1" Name="title" HorizontalAlignment="Center" VerticalAlignment="Center" Padding="0 5" Height="50" TextLineBounds="TrimToBaseline" Text="目标编辑" FontSize="28" FontWeight="Bold" Foreground="White"/>
+        </Grid>
 
         <!--在这里加入-->
         
 
         <!--底部栏：三个页面选择-->
-        
+        <Grid VerticalAlignment="Bottom" Grid.Row="2">
+            <Grid.Background>
+                <SolidColorBrush Color="#FFECECEC"/>
+            </Grid.Background>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="auto"/>
+            </Grid.ColumnDefinitions>
+            <AppBarButton Grid.Column="0" x:Name="deleteButton" Click="deleteButton_Click" Icon="Cancel" HorizontalAlignment="Right" VerticalAlignment="Center" Label="取消" FontWeight="Bold"/>
+            <AppBarButton Grid.Column="1" x:Name="addButton" Click="addButton_Click" Icon="Accept" VerticalAlignment="Center" Label="保存" FontWeight="Bold"/>
+        </Grid>
     </Grid>
 </Page>
