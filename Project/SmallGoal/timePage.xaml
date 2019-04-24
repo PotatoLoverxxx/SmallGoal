@@ -57,7 +57,7 @@
                 </ListView>
             </StackPanel>
         </ScrollViewer>
-        <!--底部栏： 三个页面选择-->
+        <!--底部栏： 三个页面选择：主页、时间管理、计划管理-->
         <Grid VerticalAlignment="Bottom" Grid.Row="3">
             <Grid.Background>
                 <SolidColorBrush Color="#F8F8F8"/>
