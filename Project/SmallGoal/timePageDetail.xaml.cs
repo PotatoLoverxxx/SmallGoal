@@ -94,6 +94,69 @@ namespace SmallGoal
                 countTimeButton.Icon = new SymbolIcon(Symbol.Play);
             }
         }
+
+
+
+        /* --- media --- */
+        bool isVolumeSlideShow = false;
+        private async void pickFileButton_Click(object sender, RoutedEventArgs e)
+        {
+
+            // Create and open the file picker
+            FileOpenPicker openPicker = new FileOpenPicker();
+            openPicker.ViewMode = PickerViewMode.Thumbnail;
+            openPicker.SuggestedStartLocation = PickerLocationId.VideosLibrary;
+            openPicker.FileTypeFilter.Add(".mp3");
+
+            StorageFile file = await openPicker.PickSingleFileAsync();
+            if (file != null)
+            {
+                var stream = await file.OpenAsync(Windows.Storage.FileAccessMode.Read);
+
+                mediaPlayerElement.SetSource(stream, file.ContentType);
+                mediaPlayerElement.Play();
+            }
+        }
+
+        private void PauseButton_Click(object sender, RoutedEventArgs e)
+        {
+            mediaPlayerElement.Pause();
+        }
+
+        private void PlayButton_Click(object sender, RoutedEventArgs e)
+        {
+            mediaPlayerElement.Play();
+        }
+
+        private void StopButton_Click(object sender, RoutedEventArgs e)
+        {
+            mediaPlayerElement.Stop();
+        }
+
+        private void VoiceButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (isVolumeSlideShow == false)
+            {
+                volumeSlider.Opacity = 1;
+                isVolumeSlideShow = true;
+            }
+            else
+            {
+                volumeSlider.Opacity = 0;
+                isVolumeSlideShow = false;
+            }
+        }
+
+        private void volumeSlider_ValueChanged(object sender, RangeBaseValueChangedEventArgs e)
+        {
+            if (mediaPlayerElement != null) mediaPlayerElement.Volume = (double)(volumeSlider.Value / 100);
+        }
+
+        private void mediaPlayerElement_MediaOpened(object sender, RoutedEventArgs e)
+        {
+            timelineSlider.Value = 0;
+            timelineSlider.Maximum = mediaPlayerElement.NaturalDuration.TimeSpan.TotalSeconds;
+        }
     }
 
 
