@@ -171,6 +171,66 @@ namespace SmallGoal
 
 
 
+        /*------------------------------导航部分-------------------------------*/
+        protected override void OnNavigatedTo(NavigationEventArgs e)
+        {
+            myViewModel = ((App)App.Current).myViewModel;
+            // 磁贴更新操作
+            TileUpdateManager.CreateTileUpdaterForApplication().EnableNotificationQueue(true);
+            TileUpdateManager.CreateTileUpdaterForApplication().Clear();
+            this.cycle += new notificationqueueCycle(Add);
+            Add(this, EventArgs.Empty);
+            //  将viewmodel传递，这是给大家提供的viewmodel
+
+            /*****************************************************
+             * 目标编辑部分
+             *****************************************************/
+            var item = ((App)App.Current).myViewModel.selectedItem;
+            if (item == null)   // 创建新目标
+            {
+                deleteButton.Label = "取消";
+                deleteButton.Icon = new SymbolIcon(Symbol.Cancel);
+            }
+            else  // 修改目标
+            {
+                deleteButton.Label = "删除";
+                deleteButton.Icon = new SymbolIcon(Symbol.Delete);
+
+                TargetNameEditor.Text = item.name;
+
+                switch (item.type)
+                {
+                    case 0:
+                        DayTarget.IsChecked = true;
+                        StartDate.Date = new DateTimeOffset(new DateTime(item.startYear, item.startMonth, item.startDay));
+                        StartTime.Time = new TimeSpan(item.startHour, item.startMinute, 0);
+                        EndDate.Date = new DateTimeOffset(new DateTime(item.endYear, item.endMonth, item.endDay));
+                        EndTime.Time = new TimeSpan(item.endHour, item.endMinute, 0);
+                        break;
+                    case 1:
+                        MonthTarget.IsChecked = true;
+                        StartDate.Date = new DateTimeOffset(new DateTime(item.startYear, item.startMonth, item.startDay));
+                        EndDate.Date = new DateTimeOffset(new DateTime(item.endYear, item.endMonth, item.endDay));
+                        break;
+                    case 2:
+                        YearTarget.IsChecked = true;
+                        StartDate.Date = new DateTimeOffset(new DateTime(item.startYear, item.startMonth, 1));
+                        EndDate.Date = new DateTimeOffset(new DateTime(item.endYear, item.endMonth, 1));
+                        break;
+                    default: break;
+                }
+
+                TargetNote.Text = item.note;
+            }
+        }
+
+        protected override void OnNavigatedFrom(NavigationEventArgs e)
+        {
+
+            this.cycle -= new notificationqueueCycle(Add);
+            DataTransferManager.GetForCurrentView().DataRequested -= DataRequested;
+        }
+
         /*---------------------------目标编辑部分--------------------------------*/
         private void cleanPage()
         {
