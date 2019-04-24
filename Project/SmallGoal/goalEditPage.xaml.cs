@@ -90,7 +90,85 @@ namespace SmallGoal
         }
 
         // 更新目标、新建目标
-        
+        private async void addButton_Click(object sender, RoutedEventArgs e)
+        {
+            string warningMessage = "";
+
+            if (TargetNameEditor.Text.Length > 16) warningMessage = "目标的名称不能够超过15字符长度哦~";
+            if (TargetNote.Text.Length > 101) warningMessage = "目标的备注不能够超过100字符长度哦~";
+
+            switch (type)
+            {
+                case 0:
+                    if (StartDate.Date.Day != EndDate.Date.Day || StartDate.Date.Month != EndDate.Date.Month ||
+                        StartDate.Date.Year != EndDate.Date.Year)
+                    {
+                        warningMessage = "日目标只能设置在同一天哦(⊙o⊙)…\n请改为月（年）目标吧(^_^)";
+                    }
+                    break;
+                case 1:
+                    if (StartDate.Date.Month != EndDate.Date.Month || StartDate.Date.Year != EndDate.Date.Year)
+                    {
+                        warningMessage = "月目标只能设置在同一月哦(⊙o⊙)…\n请改为年目标吧(^_^)";
+                    }
+                    break;
+                case 2:
+                    if (StartDate.Date.Year != EndDate.Date.Year)
+                    {
+                        warningMessage = "年目标只能设置在同一年哦(⊙o⊙)…\n请创建多个年目标吧(^_^)";
+                    }
+                    break;
+            }
+
+            if (StartDate.Date > EndDate.Date || StartTime.Time > EndTime.Time)
+            {
+                warningMessage = "结束早过开始啦(⊙o⊙)…";
+            }
+
+            if (warningMessage == "")
+            {
+                if (deleteButton.Label == "取消")   // 新建目标
+                {
+                    ((App)App.Current).myViewModel.AddMyGoalItem(TargetNameEditor.Text, type, StartDate.Date.Year,
+                        StartDate.Date.Month, StartDate.Date.Day, StartTime.Time.Hours, StartTime.Time.Minutes,
+                        EndDate.Date.Year, EndDate.Date.Month, EndDate.Date.Day, EndTime.Time.Hours, EndTime.Time.Minutes,
+                        TargetNote.Text, 0, 0, 0, 0, 0, 0, 0);
+                }
+                else         // 修改目标
+                {
+                    ((App)App.Current).myViewModel.nameChange(TargetNameEditor.Text);
+                    ((App)App.Current).myViewModel.typeChange(type);
+
+                    ((App)App.Current).myViewModel.startHourChange(StartTime.Time.Hours);
+                    ((App)App.Current).myViewModel.startMinuteChange(StartTime.Time.Minutes);
+                    ((App)App.Current).myViewModel.startYearChange(StartDate.Date.Year);
+                    ((App)App.Current).myViewModel.startMonthChange(StartDate.Date.Month);
+                    ((App)App.Current).myViewModel.startDayChange(StartDate.Date.Day);
+
+                    ((App)App.Current).myViewModel.endHourChange(EndTime.Time.Hours);
+                    ((App)App.Current).myViewModel.endMinuteChange(EndTime.Time.Minutes);
+                    ((App)App.Current).myViewModel.endYearChange(EndDate.Date.Year);
+                    ((App)App.Current).myViewModel.endMonthChange(EndDate.Date.Month);
+                    ((App)App.Current).myViewModel.endDayChange(EndDate.Date.Day);
+
+                    ((App)App.Current).myViewModel.noteChange(TargetNote.Text);
+                    ((App)App.Current).myViewModel.timeStringChange();
+                }
+
+                ((App)App.Current).myViewModel.selectedItem = null;
+                Frame.Navigate(typeof(MainPage));
+            }
+            else
+            {
+                ContentDialog dialog = new ContentDialog()
+                {
+                    Title = "提示",
+                    Content = warningMessage,
+                    PrimaryButtonText = "确定"
+                };
+                ContentDialogResult result = await dialog.ShowAsync();
+            }
+        }
 
         // 目标类型改动
         
