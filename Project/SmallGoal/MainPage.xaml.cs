@@ -137,6 +137,40 @@ namespace SmallGoal
         ViewModels.MyGoalViewModel myViewModel { get; set; }
 
 
+        /*--------------------------------- 磁贴更新----------------------------------------*/
+        public delegate void notificationqueueCycle(object sender, EventArgs e);
+        public event notificationqueueCycle cycle;
+
+        private void Add(object sender, EventArgs e)
+        {
+            Windows.UI.Notifications.TileUpdateManager.CreateTileUpdaterForApplication().EnableNotificationQueue(true);
+            TileUpdateManager.CreateTileUpdaterForApplication().Clear();
+            for (int i = 0; i < myViewModel.allItems.Count; i++)
+            {
+                string t = myViewModel.allItems[i].name;
+                string d = myViewModel.allItems[i].note;
+                UpdateTile(t, d);
+            }
+        }
+
+        public void UpdateTile(string name, string note)
+        {
+            XmlDocument xml = new XmlDocument();
+            xml.LoadXml(File.ReadAllText("Tile.xml"));
+            XmlNodeList texts = xml.GetElementsByTagName("text");
+            for (int i = 0; i < texts.Count; i++)
+            {
+                ((XmlElement)texts[i]).InnerText = name;
+                i++;
+                ((XmlElement)texts[i]).InnerText = note;
+            }
+            TileNotification notification = new TileNotification(xml);
+            TileUpdateManager.CreateTileUpdaterForApplication().Update(notification);
+        }
+        /*------------------------------- 磁贴更新 ---------------------------------------*/
+
+
+
         /*---------------------------目标编辑部分--------------------------------*/
         private void cleanPage()
         {
