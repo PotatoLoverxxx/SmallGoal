@@ -292,6 +292,42 @@ namespace SmallGoal
             Frame.Navigate(typeof(goalEditPage), "");
         }
 
+        /*----------------------------app to app communication-------------------------*/
+        private void share_Click(object sender, RoutedEventArgs e)
+        {
+            d = e.OriginalSource;
+            DataTransferManager.ShowShareUI();
+        }
+
+        dynamic d;
+        // 邮件内容
+        private void DataRequested(DataTransferManager sender, DataRequestedEventArgs e)
+        {
+            var item = d.DataContext;
+
+            var defl = e.Request.GetDeferral();
+            DataRequest request = e.Request;
+            request.Data.Properties.Title = "我的目标";
+            request.Data.Properties.Description = "目标：" + item.name;
+            request.Data.SetText("目标：" + item.name +
+                "\n开始时间：" + item.startTimeString +
+                "\n结束时间：" + item.endTimeString +
+                "\n预计花费时间：" + item.totalGoalString +
+                "\n已付出时间：" + item.usedGoalString +
+                "\n还需付出时间：" + item.needGoalString +
+                "\n备注：" + item.note
+                );
+            defl.Complete();
+        }
+
+        // 直接跳转到计时界面
+        dynamic a;
+        private void count_button(object sender, RoutedEventArgs e)
+        {
+            a = e.OriginalSource;
+            ((App)App.Current).myViewModel.selectedItem = a.DataContext;
+            Frame.Navigate(typeof(timePageDetail), "");
+        }
 
         /*---------------------------目标编辑部分--------------------------------*/
         private void cleanPage()
