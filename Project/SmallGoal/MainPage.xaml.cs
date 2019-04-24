@@ -40,7 +40,102 @@ namespace SmallGoal
             dataTransferManager.DataRequested += DataRequested;
         }
 
-        
+        /*----------------------------网络访问：获取天气部分----------------------------*/
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+            weather.Text = "";
+            temperature.Text = "";
+            GetWeather(cityName.Text);
+
+        }
+        private async void GetWeather(string tel)
+        {
+            try
+            {
+                // 创建一个HTTP client实例对象
+                HttpClient httpClient = new HttpClient();
+
+                // Add a user-agent header to the GET request. 
+
+                /*默认情况下，HttpClient对象不会将用户代理标头随 HTTP 请求一起发送到 Web 服务。
+                某些 HTTP 服务器（包括某些 Microsoft Web 服务器）要求从客户端发送的 HTTP 请求附带用户代理标头。
+                如果标头不存在，则 HTTP 服务器返回错误。
+                在 Windows.Web.Http.Headers 命名空间中使用类时，需要添加用户代理标头。
+                我们将该标头添加到 HttpClient.DefaultRequestHeaders 属性以避免这些错误。*/
+
+                var headers = httpClient.DefaultRequestHeaders;
+
+                // The safe way to add a header value is to use the TryParseAdd method and verify the return value is true,
+                // especially if the header value is coming from user input.
+                string header = "ie Mozilla/5.0 (Windows NT 6.2; WOW64; rv:25.0) Gecko/20100101 Firefox/25.0";
+                if (!headers.UserAgent.TryParseAdd(header))
+                {
+                    throw new Exception("Invalid header value: " + header);
+                }
+                // API 链接
+                string getCityCode = "http://api.avatardata.cn/Weather/Query?key=e81ecb57345c46ef99a9c74bfcdb5d0b&cityname=" + cityName.Text;
+
+                //发送GET请求
+                HttpResponseMessage response = await httpClient.GetAsync(getCityCode);
+
+                // 确保返回值为成功状态
+                response.EnsureSuccessStatusCode();
+
+                // 因为返回的字节流中含有中文，传输过程中，所以需要编码后才可以正常显示
+                // “\u5e7f\u5dde”表示“广州”，\u表示Unicode
+                Byte[] getByte = await response.Content.ReadAsByteArrayAsync();
+
+                // UTF-8是Unicode的实现方式之一。这里采用UTF-8进行编码，为了保障中文的显示
+                Encoding code = Encoding.GetEncoding("UTF-8");
+                string result = code.GetString(getByte, 0, getByte.Length);
+
+                JsonTextReader json1 = new JsonTextReader(new StringReader(result));   // 实例化json数据
+                string flag = "";
+                while (json1.Read())  // 读取json数据，赋值给flag
+                {
+                    flag += json1.Value;
+                }
+                int error1 = 0;
+                int.TryParse(flag.IndexOf("error_code").ToString(), out error1);
+                string error = flag.Substring(error1 + 10, 1);
+                if (error == "0")
+                {
+                    int m1 = 0, m2 = 0;
+                    int.TryParse(flag.IndexOf("info").ToString(), out m1);
+                    int.TryParse(flag.IndexOf("temperature").ToString(), out m2);
+                    //m2 = flag.IndexOf("mobiletype").ToString();
+                    string Weatherinfo = flag.Substring(m1 + 4, m2 - m1 - 4);
+
+                    int m3 = 0;
+                    int.TryParse(flag.IndexOf("dataUptime").ToString(), out m3);
+                    string Temperature = flag.Substring(m2 + 11, m3 - m2 - 11);
+                    weather.Text = Weatherinfo;
+                    temperature.Text = Temperature + "℃";
+
+                }
+                else
+                {
+                    var i = new MessageDialog("");
+                    i.Content = "Please input the correct city name(using Chinese name)";
+                    await i.ShowAsync();
+                }
+
+
+            }
+            catch (HttpRequestException ex1)
+            {
+                weather.Text = "出问题了哟，请重新输入~";
+                Debug.WriteLine(ex1.ToString());
+            }
+            catch (Exception ex2)
+            {
+                weather.Text = "请重新输入正确城市哦~";
+                Debug.WriteLine(ex2.ToString());
+            }
+        }
+        // viewmodel在导航进入页面时已经传递进来，大家可以直接使用
+        ViewModels.MyGoalViewModel myViewModel { get; set; }
+
 
         /*---------------------------目标编辑部分--------------------------------*/
         private void cleanPage()
