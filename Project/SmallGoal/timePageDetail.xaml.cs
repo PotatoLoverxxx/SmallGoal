@@ -52,6 +52,48 @@ namespace SmallGoal
         {
             Frame.Navigate(typeof(timePage));
         }
+
+        protected override void OnNavigatedTo(NavigationEventArgs e)
+        {
+            goalItem = ((App)App.Current).myViewModel.selectedItem;
+            goalItem.TimeToString();
+            goalItem.changeString();
+            TimeWillSpend.Text = goalItem.totalGoalString;
+            TimeNeedToSpend.Text = goalItem.needGoalString;
+            countTimeButton.Icon = new SymbolIcon(goalItem.isCountingTime ? Symbol.Stop : Symbol.Play); // play button
+        }
+
+
+        private async void countTime_Click(object sender, RoutedEventArgs e)
+        {
+            if (!goalItem.isCountingTime)  // count
+            {
+                goalItem.isCountingTime = true;
+                countTimeButton.Icon = new SymbolIcon(Symbol.Stop);
+                goalItem.countingStart = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+
+                await Task.Delay(1000);
+                long seconds = goalItem.countedSeconds;
+
+                while (goalItem.isCountingTime)
+                {
+                    seconds = goalItem.countedSeconds + DateTimeOffset.UtcNow.ToUnixTimeSeconds() - goalItem.countingStart;
+                    goalItem.usedSecond = (int)(seconds % 60);
+                    goalItem.usedMinute = (int)(seconds / 60) % 60;
+                    goalItem.usedHour = (int)(seconds / 3600) % 24;
+                    goalItem.usedDay = (int)(seconds / 86400);
+                    goalItem.changeString();
+                    TimeWillSpend.Text = goalItem.totalGoalString;
+                    TimeNeedToSpend.Text = goalItem.needGoalString;
+                    await Task.Delay(1000);
+                }
+                goalItem.countedSeconds = seconds;
+
+            } else { // paused
+                goalItem.isCountingTime = false;
+                countTimeButton.Icon = new SymbolIcon(Symbol.Play);
+            }
+        }
     }
 
 
