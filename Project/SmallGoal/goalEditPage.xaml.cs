@@ -171,7 +171,46 @@ namespace SmallGoal
         }
 
         // 目标类型改动
-        
+        private void TargetType_Checked(object sender, RoutedEventArgs e)
+        {
+            RadioButton rb = sender as RadioButton;
+            type = 0;  // 0：日目标. 1：月目标. 2：年目标
+            if (rb != null)
+            {
+                string dateType = rb.Tag.ToString();
+
+                // 初始化起始时间和结束时间
+                if (StartTime != null && StartDate != null && EndTime != null && EndDate != null)
+                {
+                    StartDate.Date = EndDate.Date = DateTimeOffset.Now;
+                    StartTime.Time = EndTime.Time = new TimeSpan(DateTimeOffset.Now.Hour, DateTimeOffset.Now.Minute, DateTimeOffset.Now.Second);
+                }
+
+                switch (dateType)
+                {
+                    case "DayTarget":
+                        if (StartTime != null && StartDate != null && EndTime != null && EndDate != null)
+                        {
+                            StartTime.Visibility = Visibility.Visible;
+                            StartDate.DayVisible = true;
+                            EndTime.Visibility = Visibility.Visible;
+                            EndDate.DayVisible = true;
+                        }
+                        type = 0;
+                        break;
+                    case "MonthTarget":
+                        StartTime.Visibility = EndTime.Visibility = Visibility.Collapsed;
+                        StartDate.DayVisible = EndDate.DayVisible = true;
+                        type = 1;
+                        break;
+                    case "YearTarget":
+                        StartTime.Visibility = EndTime.Visibility = Visibility.Collapsed;
+                        StartDate.DayVisible = EndDate.DayVisible = false;
+                        type = 2;
+                        break;
+                }
+            }
+        }
 
         /*-----------------------------导航--------------------------------*/
         private void navigateBackButton_Click(object sender, RoutedEventArgs e)
