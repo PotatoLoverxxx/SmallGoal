@@ -231,6 +231,68 @@ namespace SmallGoal
             DataTransferManager.GetForCurrentView().DataRequested -= DataRequested;
         }
 
+        /*-------------------------跳转部分-------------------------*/
+        // 跳转到时间管理界面
+        private void timePageButton_Click(object sender, RoutedEventArgs e)
+        {
+            Frame.Navigate(typeof(timePage), "");
+        }
+        // 跳转到计划管理界面
+        private void planPageButton_Click(object sender, RoutedEventArgs e)
+        {
+            Frame.Navigate(typeof(planPage), "");
+        }
+
+        //跳转到目标的详细内容编辑界面
+        private void TodoItem_ItemClicked(object sender, ItemClickEventArgs e)
+        {
+            ((App)App.Current).myViewModel.selectedItem = (Models.MyGoalItem)(e.ClickedItem);
+            // 导航到目标编辑页面
+            if (Window.Current.Bounds.Width < 700)
+            {
+                Frame.Navigate(typeof(goalEditPage), "");
+            }
+            else   // 直接显示目标信息并编辑
+            {
+                var item = ((App)App.Current).myViewModel.selectedItem;
+                deleteButton.Label = "删除";
+                deleteButton.Icon = new SymbolIcon(Symbol.Delete);
+
+                TargetNameEditor.Text = item.name;
+
+                switch (item.type)
+                {
+                    case 0:
+                        DayTarget.IsChecked = true;
+                        StartDate.Date = new DateTimeOffset(new DateTime(item.startYear, item.startMonth, item.startDay));
+                        StartTime.Time = new TimeSpan(item.startHour, item.startMinute, 0);
+                        EndDate.Date = new DateTimeOffset(new DateTime(item.endYear, item.endMonth, item.endDay));
+                        EndTime.Time = new TimeSpan(item.endHour, item.endMinute, 0);
+                        break;
+                    case 1:
+                        MonthTarget.IsChecked = true;
+                        StartDate.Date = new DateTimeOffset(new DateTime(item.startYear, item.startMonth, item.startDay));
+                        EndDate.Date = new DateTimeOffset(new DateTime(item.endYear, item.endMonth, item.endDay));
+                        break;
+                    case 2:
+                        YearTarget.IsChecked = true;
+                        StartDate.Date = new DateTimeOffset(new DateTime(item.startYear, item.startMonth, 1));
+                        EndDate.Date = new DateTimeOffset(new DateTime(item.endYear, item.endMonth, 1));
+                        break;
+                    default: break;
+                }
+
+                TargetNote.Text = item.note;
+            }
+        }
+
+        // 跳转到添加目标界面
+        private void Add_item(object sender, RoutedEventArgs e)
+        {
+            Frame.Navigate(typeof(goalEditPage), "");
+        }
+
+
         /*---------------------------目标编辑部分--------------------------------*/
         private void cleanPage()
         {
