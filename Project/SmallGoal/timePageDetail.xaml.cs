@@ -71,29 +71,88 @@ namespace SmallGoal
                 goalItem.isCountingTime = true;
                 countTimeButton.Icon = new SymbolIcon(Symbol.Stop);
                 goalItem.countingStart = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+                goalItem.deltaS = goalItem.countedSeconds;
 
                 await Task.Delay(1000);
-                long seconds = goalItem.countedSeconds;
-
                 while (goalItem.isCountingTime)
                 {
-                    seconds = goalItem.countedSeconds + DateTimeOffset.UtcNow.ToUnixTimeSeconds() - goalItem.countingStart;
-                    goalItem.usedSecond = (int)(seconds % 60);
-                    goalItem.usedMinute = (int)(seconds / 60) % 60;
-                    goalItem.usedHour = (int)(seconds / 3600) % 24;
-                    goalItem.usedDay = (int)(seconds / 86400);
+                    goalItem.countedSeconds = goalItem.deltaS + DateTimeOffset.UtcNow.ToUnixTimeSeconds() - goalItem.countingStart;
                     goalItem.changeString();
                     TimeWillSpend.Text = goalItem.totalGoalString;
                     TimeNeedToSpend.Text = goalItem.needGoalString;
                     await Task.Delay(1000);
                 }
-                goalItem.countedSeconds = seconds;
 
-            } else { // paused
+            }
+            else
+            { // paused
                 goalItem.isCountingTime = false;
                 countTimeButton.Icon = new SymbolIcon(Symbol.Play);
             }
         }
+
+        /* more timekeeping utilities */
+
+
+        protected override void OnNavigatedFrom(NavigationEventArgs e)
+        {
+            int index = ((App)App.Current).myViewModel.allItems.IndexOf(((App)App.Current).myViewModel.selectedItem);
+            ((App)App.Current).myViewModel.allItems[index] = goalItem;
+            ((App)App.Current).myViewModel.selectedItem = null;
+        }
+
+        // 计时
+        private async void _LostFocus(object sender, RoutedEventArgs e)
+        {
+            int count = 0;
+            int sec, min, hour, day;
+            string warningMessage = "";
+
+            
+            if (int.TryParse(usedSecondTextBox.Text, out count) && int.TryParse(usedMinuteTextBox.Text, out count)
+                && int.TryParse(usedHourTextBox.Text, out count) && int.TryParse(usedDayTextBox.Text, out count))
+            {
+                sec = int.Parse(usedSecondTextBox.Text);
+                min = int.Parse(usedMinuteTextBox.Text);
+                hour = int.Parse(usedHourTextBox.Text);
+                day = int.Parse(usedDayTextBox.Text);
+
+                if (!(0 <= sec && sec < 60 && 0 <= min && min < 60 && 0 <= hour && hour < 24 && day >= 0))
+                {
+                    warningMessage = "输入有误，请重试";
+                }
+                else
+                {
+                    goalItem.countingStart = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+                    goalItem.deltaS += sec + min * 60 + hour * 3600 + day * 86400 - goalItem.countedSeconds;
+                    goalItem.countedSeconds = sec + min * 60 + hour * 3600 + day * 86400;
+                    goalItem.changeString();
+                    TimeWillSpend.Text = goalItem.totalGoalString;
+                    TimeNeedToSpend.Text = goalItem.needGoalString;
+                }
+            }
+            else
+            {
+                warningMessage = "非法输入！";
+            }
+
+            if (warningMessage != "")
+            {
+                usedSecondTextBox.Text = goalItem.usedSecond.ToString();
+                usedMinuteTextBox.Text = goalItem.usedMinute.ToString();
+                usedHourTextBox.Text = goalItem.usedHour.ToString();
+                usedDayTextBox.Text = goalItem.usedDay.ToString();
+
+                ContentDialog dialog = new ContentDialog()
+                {
+                    Title = "提示",
+                    Content = warningMessage,
+                    PrimaryButtonText = "确定"
+                };
+                ContentDialogResult result = await dialog.ShowAsync();
+            }
+        }
+
 
 
 
@@ -157,6 +216,8 @@ namespace SmallGoal
             timelineSlider.Value = 0;
             timelineSlider.Maximum = mediaPlayerElement.NaturalDuration.TimeSpan.TotalSeconds;
         }
+
+
     }
 
 

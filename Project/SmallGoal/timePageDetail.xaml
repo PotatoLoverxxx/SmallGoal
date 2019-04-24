@@ -91,13 +91,13 @@
                                 <ColumnDefinition Width="auto"/>
                                 <ColumnDefinition Width="auto"/>
                             </Grid.ColumnDefinitions>
-                            <TextBox Grid.Column="0" x:Name="usedDayTextBox" LostFocus="_LostFocus" Text="{x:Bind goalItem.usedDay, Mode=TwoWay}" />
+                            <TextBox Grid.Column="0" x:Name="usedDayTextBox" KeyUp="_LostFocus" Text="{x:Bind goalItem.usedDay, Mode=TwoWay}" />
                             <TextBlock Grid.Column="1" Text="天" Margin="4,4,0,0"/>
-                            <TextBox Grid.Column="2" x:Name="usedHourTextBox" Width="24" LostFocus="_LostFocus" Text="{x:Bind goalItem.usedHour, Mode=TwoWay}" Margin="12,0,0,0"/>
+                            <TextBox Grid.Column="2" x:Name="usedHourTextBox" Width="24" KeyUp="_LostFocus" Text="{x:Bind goalItem.usedHour, Mode=TwoWay}" Margin="12,0,0,0"/>
                             <TextBlock Grid.Column="3" Text=":" FontWeight="Bold" Margin="4,4,4,0"/>
-                            <TextBox Grid.Column="4" x:Name="usedMinuteTextBox" Width="24" LostFocus="_LostFocus" Text="{x:Bind goalItem.usedMinute, Mode=TwoWay}"/>
+                            <TextBox Grid.Column="4" x:Name="usedMinuteTextBox" Width="24" KeyUp="_LostFocus" Text="{x:Bind goalItem.usedMinute, Mode=TwoWay}"/>
                             <TextBlock Grid.Column="5" Text=":" FontWeight="Bold" Margin="4,4,4,0"/>
-                            <TextBox Grid.Column="6" x:Name="usedSecondTextBox" LostFocus="_LostFocus" Text="{x:Bind goalItem.usedSecond, Mode=TwoWay}" Width="24"/>
+                            <TextBox Grid.Column="6" x:Name="usedSecondTextBox" KeyUp="_LostFocus" Text="{x:Bind goalItem.usedSecond, Mode=TwoWay}" Width="24"/>
                         </Grid>
                     </Grid>
                     <Grid Grid.Row="3" Margin="0,8">
