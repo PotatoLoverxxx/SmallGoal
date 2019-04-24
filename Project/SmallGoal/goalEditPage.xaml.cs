@@ -69,7 +69,25 @@ namespace SmallGoal
         }
 
         // 删除目标、取消
-        
+        private void deleteButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (deleteButton.Label == "取消") // 取消编辑并回退页面
+            {
+                TargetNameEditor.Text = "";
+                DayTarget.IsChecked = true;
+                StartDate.Date = DateTimeOffset.Now;
+                StartTime.Time = new TimeSpan(DateTimeOffset.Now.Hour, DateTimeOffset.Now.Minute, DateTimeOffset.Now.Second);
+                EndDate.Date = DateTimeOffset.Now;
+                EndTime.Time = new TimeSpan(DateTimeOffset.Now.Hour, DateTimeOffset.Now.Minute, DateTimeOffset.Now.Second);
+                TargetNote.Text = "";
+            }
+            else   // 删除目标
+            {
+                ((App)App.Current).myViewModel.RemoveMyGoalItem();
+            }
+            ((App)App.Current).myViewModel.selectedItem = null;
+            Frame.Navigate(typeof(MainPage));
+        }
 
         // 更新目标、新建目标
         
