@@ -17,4 +17,38 @@ using Windows.UI.Xaml.Navigation;
 
 namespace SmallGoal
 {
+    /// <summary>
+    /// 时间管理页面
+    /// </summary>
+    public sealed partial class timePage : Page
+    {
+        // viewmodel在导航进入页面时已经传递进来，大家可以直接使用
+        ViewModels.MyGoalViewModel myViewModel { get; set; }
+
+        protected override void OnNavigatedTo(NavigationEventArgs e)
+        {
+            //  将viewmodel传递，这是给大家提供的viewmodel
+            myViewModel = ((App)App.Current).myViewModel;
+        }
+
+        public timePage()
+        {
+            this.InitializeComponent();
+        }
+
+        private void mainPageButton_Click(object sender, RoutedEventArgs e)
+        {
+            Frame.Navigate(typeof(MainPage), "");
+        }
+
+        private void planPageButton_Click(object sender, RoutedEventArgs e)
+        {
+            Frame.Navigate(typeof(planPage), "");
+        }
+
+        private void GoalItem_ItemClicked(object sender, RoutedEventArgs e)
+        {
+            Frame.Navigate(typeof(timePageDetail), "");
+        }
+    }
 }
