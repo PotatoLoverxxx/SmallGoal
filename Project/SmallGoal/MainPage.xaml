@@ -185,6 +185,19 @@
                   </Grid>
                 </Grid>
               </ScrollViewer>
+
+              <!--底部栏：删除、保存-->
+              <Grid VerticalAlignment="Bottom" Grid.Row="2">
+                <Grid.Background>
+                  <SolidColorBrush Color="#FFECECEC"/>
+                </Grid.Background>
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="*"/>
+                  <ColumnDefinition Width="auto"/>
+                </Grid.ColumnDefinitions>
+                <AppBarButton Grid.Column="0" x:Name="deleteButton" Click="deleteButton_Click" Icon="Cancel" HorizontalAlignment="Right" VerticalAlignment="Center" Label="取消" FontWeight="Bold"/>
+                <AppBarButton Grid.Column="1" x:Name="addButton" Click="addButton_Click" Icon="Accept" VerticalAlignment="Center" Label="保存" FontWeight="Bold"/>
+              </Grid>
             </Grid>
         </Grid>
     </Grid>
