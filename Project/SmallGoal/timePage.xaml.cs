@@ -50,5 +50,11 @@ namespace SmallGoal
         {
             Frame.Navigate(typeof(timePageDetail), "");
         }
+
+        private void TodoItem_ItemClicked(object sender, ItemClickEventArgs e)
+        {
+            myViewModel.selectedItem = (Models.MyGoalItem)(e.ClickedItem);
+            Frame.Navigate(typeof(timePageDetail), "");
+        }
     }
 }
