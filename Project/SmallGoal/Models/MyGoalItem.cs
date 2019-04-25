@@ -56,6 +56,10 @@ namespace SmallGoal.Models
         private string _endTimeString;
         private bool _isCountingTime;
 
+        private long _countingStart;
+        private long _countedSeconds;
+        private long _deltaS;
+
         // 供viewmodel调用的公有接口们
         // 目标名称
         public string name { get { return this._name; } set { this._name = value; this.NotifyPropertyChanged(); } }
@@ -96,7 +100,11 @@ namespace SmallGoal.Models
         public string startTimeString { get { return this._startTimeString; } set { this._startTimeString = value;  this.NotifyPropertyChanged(); } }
         public string endTimeString { get { return this._endTimeString; } set { this._endTimeString = value;  this.NotifyPropertyChanged(); } }
 
-        public bool isCountingTime { get { return this._isCountingTime; } set { this._isCountingTime = value;  this.NotifyPropertyChanged(); } }
+        public bool isCountingTime { get { return this._isCountingTime; } set { this._isCountingTime = value; this.NotifyPropertyChanged(); } }
+
+        public long countingStart { get { return this._countingStart; } set { this._countingStart = value; this.NotifyPropertyChanged(); } }
+        public long countedSeconds { get { return this._countedSeconds; } set { this._countedSeconds = value; this.NotifyPropertyChanged(); } }
+        public long deltaS { get { return this._deltaS; } set { this._deltaS = value; this.NotifyPropertyChanged(); } }
 
         public MyGoalItem(string name, int type, int startYear, int startMonth, int startDay, int startHour, int startMinute,
             int endYear, int endMonth, int endDay, int endHour, int endMinute, string note, int isFinished,
@@ -155,6 +163,10 @@ namespace SmallGoal.Models
         public void changeString()
         {
             this.DayGoalString = this.startHour.ToString() + "时" + this.startMinute.ToString() + "分 - " + this.endHour.ToString() + "时" + this.endMinute.ToString() + "分";
+            this.usedSecond = (int)(this.countedSeconds % 60);
+            this.usedMinute = (int)(this.countedSeconds / 60) % 60;
+            this.usedHour = (int)(this.countedSeconds / 3600) % 24;
+            this.usedDay = (int)(this.countedSeconds / 86400);
             if (type == 0)
             {
                 // 日目标
