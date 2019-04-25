@@ -39,5 +39,17 @@ namespace SmallGoal
             this.InitializeComponent();
         }
 
+        /*------------------- 点击函数 ------------------------*/
+        private void mainPageButton_Click(object sender, RoutedEventArgs e)
+        {
+            Frame.Navigate(typeof(MainPage), "");
+        }
+
+        private void timePageButton_Click(object sender, RoutedEventArgs e)
+        {
+            ObservableCollection<Models.MyGoalItem> items = myViewModel.findDayGoalCollection(2017, 5, 8);
+            time.DataContext = items;
+            Frame.Navigate(typeof(timePage), "");
+        }
     }
 }
