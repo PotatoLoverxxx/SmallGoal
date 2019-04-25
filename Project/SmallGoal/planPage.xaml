@@ -97,7 +97,51 @@
                         <!--在这里要使用模板-->
                     </StackPanel>
                 </Grid>
-            </Grid>    
+            </Grid>
+        
+            <!--月计划清单-->
+            <Grid Grid.Column="1" Visibility="Collapsed" Name="monthPlanList">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="1*"/>
+                    <RowDefinition Height="1*"/>
+                </Grid.RowDefinitions>
+                <Grid Grid.Row="0">
+                    <StackPanel>
+                        <TextBlock Text="待月计划列表" HorizontalAlignment="Center" />
+                        <ListView Name="monthPlan"> 
+                            <ListView.ItemTemplate>
+                                <DataTemplate x:DataType = "md:MyGoalItem">
+                                    <UserControl>
+                                        <TextBlock Text="{x:Bind name}" HorizontalAlignment="Center" />
+                                    </UserControl>
+                                </DataTemplate>
+                            </ListView.ItemTemplate>
+
+                        </ListView>
+
+                        <!--在这里要使用模板-->
+                    </StackPanel>
+                </Grid>
+                <Grid Grid.Row="1">
+                    <StackPanel>
+                        <TextBlock Text="已完成月计划" HorizontalAlignment="Center" />
+                        <ListView Name='realMonthPlan'>
+                            <ListView.ItemTemplate>
+                                <DataTemplate x:DataType = "md:MyGoalItem">
+                                    <UserControl>
+                                        <TextBlock Text="{x:Bind name}" HorizontalAlignment="Center" />
+                                    </UserControl>
+                                </DataTemplate>
+                            </ListView.ItemTemplate>
+
+                        </ListView>
+
+                        <!--在这里要使用模板-->
+                    </StackPanel>
+                </Grid>
+            </Grid>
+
+
         </Grid>
 
         <!--底部栏：三个页面选择-->
