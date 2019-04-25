@@ -40,7 +40,294 @@ namespace SmallGoal
             dataTransferManager.DataRequested += DataRequested;
         }
 
-        
+        /*----------------------------网络访问：获取天气部分----------------------------*/
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+            weather.Text = "";
+            temperature.Text = "";
+            GetWeather(cityName.Text);
+
+        }
+        private async void GetWeather(string tel)
+        {
+            try
+            {
+                // 创建一个HTTP client实例对象
+                HttpClient httpClient = new HttpClient();
+
+                // Add a user-agent header to the GET request. 
+
+                /*默认情况下，HttpClient对象不会将用户代理标头随 HTTP 请求一起发送到 Web 服务。
+                某些 HTTP 服务器（包括某些 Microsoft Web 服务器）要求从客户端发送的 HTTP 请求附带用户代理标头。
+                如果标头不存在，则 HTTP 服务器返回错误。
+                在 Windows.Web.Http.Headers 命名空间中使用类时，需要添加用户代理标头。
+                我们将该标头添加到 HttpClient.DefaultRequestHeaders 属性以避免这些错误。*/
+
+                var headers = httpClient.DefaultRequestHeaders;
+
+                // The safe way to add a header value is to use the TryParseAdd method and verify the return value is true,
+                // especially if the header value is coming from user input.
+                string header = "ie Mozilla/5.0 (Windows NT 6.2; WOW64; rv:25.0) Gecko/20100101 Firefox/25.0";
+                if (!headers.UserAgent.TryParseAdd(header))
+                {
+                    throw new Exception("Invalid header value: " + header);
+                }
+                // API 链接
+                string getCityCode = "http://api.avatardata.cn/Weather/Query?key=e81ecb57345c46ef99a9c74bfcdb5d0b&cityname=" + cityName.Text;
+
+                //发送GET请求
+                HttpResponseMessage response = await httpClient.GetAsync(getCityCode);
+
+                // 确保返回值为成功状态
+                response.EnsureSuccessStatusCode();
+
+                // 因为返回的字节流中含有中文，传输过程中，所以需要编码后才可以正常显示
+                // “\u5e7f\u5dde”表示“广州”，\u表示Unicode
+                Byte[] getByte = await response.Content.ReadAsByteArrayAsync();
+
+                // UTF-8是Unicode的实现方式之一。这里采用UTF-8进行编码，为了保障中文的显示
+                Encoding code = Encoding.GetEncoding("UTF-8");
+                string result = code.GetString(getByte, 0, getByte.Length);
+
+                JsonTextReader json1 = new JsonTextReader(new StringReader(result));   // 实例化json数据
+                string flag = "";
+                while (json1.Read())  // 读取json数据，赋值给flag
+                {
+                    flag += json1.Value;
+                }
+                int error1 = 0;
+                int.TryParse(flag.IndexOf("error_code").ToString(), out error1);
+                string error = flag.Substring(error1 + 10, 1);
+                if (error == "0")
+                {
+                    int m1 = 0, m2 = 0;
+                    int.TryParse(flag.IndexOf("info").ToString(), out m1);
+                    int.TryParse(flag.IndexOf("temperature").ToString(), out m2);
+                    //m2 = flag.IndexOf("mobiletype").ToString();
+                    string Weatherinfo = flag.Substring(m1 + 4, m2 - m1 - 4);
+
+                    int m3 = 0;
+                    int.TryParse(flag.IndexOf("dataUptime").ToString(), out m3);
+                    string Temperature = flag.Substring(m2 + 11, m3 - m2 - 11);
+                    weather.Text = Weatherinfo;
+                    temperature.Text = Temperature + "℃";
+
+                }
+                else
+                {
+                    var i = new MessageDialog("");
+                    i.Content = "Please input the correct city name(using Chinese name)";
+                    await i.ShowAsync();
+                }
+
+
+            }
+            catch (HttpRequestException ex1)
+            {
+                weather.Text = "出问题了哟，请重新输入~";
+                Debug.WriteLine(ex1.ToString());
+            }
+            catch (Exception ex2)
+            {
+                weather.Text = "请重新输入正确城市哦~";
+                Debug.WriteLine(ex2.ToString());
+            }
+        }
+        // viewmodel在导航进入页面时已经传递进来，大家可以直接使用
+        ViewModels.MyGoalViewModel myViewModel { get; set; }
+
+
+        /*--------------------------------- 磁贴更新----------------------------------------*/
+        public delegate void notificationqueueCycle(object sender, EventArgs e);
+        public event notificationqueueCycle cycle;
+
+        private void Add(object sender, EventArgs e)
+        {
+            Windows.UI.Notifications.TileUpdateManager.CreateTileUpdaterForApplication().EnableNotificationQueue(true);
+            TileUpdateManager.CreateTileUpdaterForApplication().Clear();
+            for (int i = 0; i < myViewModel.allItems.Count; i++)
+            {
+                string t = myViewModel.allItems[i].name;
+                string d = myViewModel.allItems[i].note;
+                UpdateTile(t, d);
+            }
+        }
+
+        public void UpdateTile(string name, string note)
+        {
+            XmlDocument xml = new XmlDocument();
+            xml.LoadXml(File.ReadAllText("Tile.xml"));
+            XmlNodeList texts = xml.GetElementsByTagName("text");
+            for (int i = 0; i < texts.Count; i++)
+            {
+                ((XmlElement)texts[i]).InnerText = name;
+                i++;
+                ((XmlElement)texts[i]).InnerText = note;
+            }
+            TileNotification notification = new TileNotification(xml);
+            TileUpdateManager.CreateTileUpdaterForApplication().Update(notification);
+        }
+        /*------------------------------- 磁贴更新 ---------------------------------------*/
+
+
+
+        /*------------------------------导航部分-------------------------------*/
+        protected override void OnNavigatedTo(NavigationEventArgs e)
+        {
+            myViewModel = ((App)App.Current).myViewModel;
+            // 磁贴更新操作
+            TileUpdateManager.CreateTileUpdaterForApplication().EnableNotificationQueue(true);
+            TileUpdateManager.CreateTileUpdaterForApplication().Clear();
+            this.cycle += new notificationqueueCycle(Add);
+            Add(this, EventArgs.Empty);
+            //  将viewmodel传递，这是给大家提供的viewmodel
+
+            /*****************************************************
+             * 目标编辑部分
+             *****************************************************/
+            var item = ((App)App.Current).myViewModel.selectedItem;
+            if (item == null)   // 创建新目标
+            {
+                deleteButton.Label = "取消";
+                deleteButton.Icon = new SymbolIcon(Symbol.Cancel);
+            }
+            else  // 修改目标
+            {
+                deleteButton.Label = "删除";
+                deleteButton.Icon = new SymbolIcon(Symbol.Delete);
+
+                TargetNameEditor.Text = item.name;
+
+                switch (item.type)
+                {
+                    case 0:
+                        DayTarget.IsChecked = true;
+                        StartDate.Date = new DateTimeOffset(new DateTime(item.startYear, item.startMonth, item.startDay));
+                        StartTime.Time = new TimeSpan(item.startHour, item.startMinute, 0);
+                        EndDate.Date = new DateTimeOffset(new DateTime(item.endYear, item.endMonth, item.endDay));
+                        EndTime.Time = new TimeSpan(item.endHour, item.endMinute, 0);
+                        break;
+                    case 1:
+                        MonthTarget.IsChecked = true;
+                        StartDate.Date = new DateTimeOffset(new DateTime(item.startYear, item.startMonth, item.startDay));
+                        EndDate.Date = new DateTimeOffset(new DateTime(item.endYear, item.endMonth, item.endDay));
+                        break;
+                    case 2:
+                        YearTarget.IsChecked = true;
+                        StartDate.Date = new DateTimeOffset(new DateTime(item.startYear, item.startMonth, 1));
+                        EndDate.Date = new DateTimeOffset(new DateTime(item.endYear, item.endMonth, 1));
+                        break;
+                    default: break;
+                }
+
+                TargetNote.Text = item.note;
+            }
+        }
+
+        protected override void OnNavigatedFrom(NavigationEventArgs e)
+        {
+
+            this.cycle -= new notificationqueueCycle(Add);
+            DataTransferManager.GetForCurrentView().DataRequested -= DataRequested;
+        }
+
+        /*-------------------------跳转部分-------------------------*/
+        // 跳转到时间管理界面
+        private void timePageButton_Click(object sender, RoutedEventArgs e)
+        {
+            Frame.Navigate(typeof(timePage), "");
+        }
+        // 跳转到计划管理界面
+        private void planPageButton_Click(object sender, RoutedEventArgs e)
+        {
+            Frame.Navigate(typeof(planPage), "");
+        }
+
+        //跳转到目标的详细内容编辑界面
+        private void TodoItem_ItemClicked(object sender, ItemClickEventArgs e)
+        {
+            ((App)App.Current).myViewModel.selectedItem = (Models.MyGoalItem)(e.ClickedItem);
+            // 导航到目标编辑页面
+            if (Window.Current.Bounds.Width < 700)
+            {
+                Frame.Navigate(typeof(goalEditPage), "");
+            }
+            else   // 直接显示目标信息并编辑
+            {
+                var item = ((App)App.Current).myViewModel.selectedItem;
+                deleteButton.Label = "删除";
+                deleteButton.Icon = new SymbolIcon(Symbol.Delete);
+
+                TargetNameEditor.Text = item.name;
+
+                switch (item.type)
+                {
+                    case 0:
+                        DayTarget.IsChecked = true;
+                        StartDate.Date = new DateTimeOffset(new DateTime(item.startYear, item.startMonth, item.startDay));
+                        StartTime.Time = new TimeSpan(item.startHour, item.startMinute, 0);
+                        EndDate.Date = new DateTimeOffset(new DateTime(item.endYear, item.endMonth, item.endDay));
+                        EndTime.Time = new TimeSpan(item.endHour, item.endMinute, 0);
+                        break;
+                    case 1:
+                        MonthTarget.IsChecked = true;
+                        StartDate.Date = new DateTimeOffset(new DateTime(item.startYear, item.startMonth, item.startDay));
+                        EndDate.Date = new DateTimeOffset(new DateTime(item.endYear, item.endMonth, item.endDay));
+                        break;
+                    case 2:
+                        YearTarget.IsChecked = true;
+                        StartDate.Date = new DateTimeOffset(new DateTime(item.startYear, item.startMonth, 1));
+                        EndDate.Date = new DateTimeOffset(new DateTime(item.endYear, item.endMonth, 1));
+                        break;
+                    default: break;
+                }
+
+                TargetNote.Text = item.note;
+            }
+        }
+
+        // 跳转到添加目标界面
+        private void Add_item(object sender, RoutedEventArgs e)
+        {
+            Frame.Navigate(typeof(goalEditPage), "");
+        }
+
+        /*----------------------------app to app communication-------------------------*/
+        private void share_Click(object sender, RoutedEventArgs e)
+        {
+            d = e.OriginalSource;
+            DataTransferManager.ShowShareUI();
+        }
+
+        dynamic d;
+        // 邮件内容
+        private void DataRequested(DataTransferManager sender, DataRequestedEventArgs e)
+        {
+            var item = d.DataContext;
+
+            var defl = e.Request.GetDeferral();
+            DataRequest request = e.Request;
+            request.Data.Properties.Title = "我的目标";
+            request.Data.Properties.Description = "目标：" + item.name;
+            request.Data.SetText("目标：" + item.name +
+                "\n开始时间：" + item.startTimeString +
+                "\n结束时间：" + item.endTimeString +
+                "\n预计花费时间：" + item.totalGoalString +
+                "\n已付出时间：" + item.usedGoalString +
+                "\n还需付出时间：" + item.needGoalString +
+                "\n备注：" + item.note
+                );
+            defl.Complete();
+        }
+
+        // 直接跳转到计时界面
+        dynamic a;
+        private void count_button(object sender, RoutedEventArgs e)
+        {
+            a = e.OriginalSource;
+            ((App)App.Current).myViewModel.selectedItem = a.DataContext;
+            Frame.Navigate(typeof(timePageDetail), "");
+        }
 
         /*---------------------------目标编辑部分--------------------------------*/
         private void cleanPage()
