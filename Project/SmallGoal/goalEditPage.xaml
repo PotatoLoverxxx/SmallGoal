@@ -11,9 +11,9 @@
     <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
         <!--三部分：顶部栏+内容（自行修改）+底部栏-->
         <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
         <!--顶部栏： 图标（如果需要）+标题+图标（如果需要）-->
@@ -22,8 +22,8 @@
                 <SolidColorBrush Color="#00BCD4"/>
             </Grid.Background>
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="1*"/>
+                <ColumnDefinition Width="8*"/>
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
             <AppBarButton Grid.Column="0" x:Name="navigateBackButton" Click="navigateBackButton_Click" Height="50" HorizontalAlignment="Center" Icon="Back" Foreground="White" VerticalAlignment="Center" FontWeight="Bold"/>
